@@ -4,65 +4,55 @@
     <title>SISTEMA TÁTICO P2M - DASHBOARD</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #ccc; padding: 20px; margin: 0; }
-        .container { max-width: 1200px; margin: auto; }
-        
+        .container { max-width: 1400px; margin: auto; }
         header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; margin-bottom: 20px; }
         h1 { color: #d4a017; text-transform: uppercase; font-size: 20px; letter-spacing: 1px; }
 
         .grid-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
 
-        /* Blocos de Alerta e Métricas */
-        .metricas-topo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .metrica-quadrado { background: #111; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #222; }
-        .metrica-quadrado span { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
-        .valor { font-size: 24px; font-weight: bold; color: #d4a017; }
-
-        /* Mapa de Calor / Gráfico Simples */
         .heat-map-container { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; margin-bottom: 20px; }
         .bar-container { background: #222; height: 25px; border-radius: 12px; overflow: hidden; margin-top: 10px; border: 1px solid #333; }
-        .bar-fill { height: 100%; width: 0%; transition: 0.5s; background: linear-gradient(90deg, #b0413e, #d4a017, #5a8c5a); }
+        .bar-fill { height: 100%; width: 0%; transition: 0.5s; background: linear-gradient(90deg, #ff4b2b, #ffb400, #2ecc71); }
 
-        /* Tabela Operacional */
-        .card-gestao { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; }
-        table { width: 100%; border-collapse: collapse; }
-        th { color: #888; text-transform: uppercase; font-size: 10px; text-align: left; padding: 10px; border-bottom: 1px solid #333; }
-        td { padding: 10px; border-bottom: 1px solid #1a1a1a; }
+        .card-gestao { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { color: #888; text-transform: uppercase; font-size: 10px; text-align: center; padding: 10px; border-bottom: 1px solid #333; }
+        td { padding: 8px; border-bottom: 1px solid #1a1a1a; text-align: center; }
 
-        /* Estilo Dinâmico do Mapa de Calor na Tabela */
-        .heat-n1 { background: rgba(176, 65, 62, 0.15); color: #ff6b6b; } /* Frio/Crítico */
-        .heat-n2 { background: rgba(212, 160, 23, 0.15); color: #d4a017; } /* Morno */
-        .heat-n3 { background: rgba(90, 140, 90, 0.15); color: #6bff6b; } /* Quente/Ideal */
-        .heat-n4 { background: rgba(125, 90, 148, 0.15); color: #a55eea; } /* Fogo/Expert */
+        /* Estilo do Mapa de Calor (Performance/REPS) */
+        .status-reps { font-weight: bold; font-size: 10px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
+        .reps-verde { color: #2ecc71; background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; }
+        .reps-amarelo { color: #f1c40f; background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f; }
+        .reps-vermelho { color: #e74c3c; background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; }
 
-        .obs-input, select { background: #000; color: #eee; border: 1px solid #333; padding: 6px; border-radius: 4px; width: 100%; outline: none; }
+        .input-metrica { background: #000; color: #d4a017; border: 1px solid #333; padding: 6px; border-radius: 4px; width: 60px; text-align: center; font-weight: bold; }
+        .obs-input { background: #000; color: #eee; border: 1px solid #333; padding: 8px; border-radius: 4px; width: 100%; outline: none; font-size: 12px; }
         .obs-input:focus { border-color: #d4a017; }
 
         .btn { background: #d4a017; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
         .btn-export { background: #333; color: #fff; margin-top: 10px; width: 100%; }
         
         .secao-lateral { display: flex; flex-direction: column; gap: 20px; }
-        .ausente { opacity: 0.2; filter: grayscale(1); }
-        input[type="checkbox"] { accent-color: #d4a017; transform: scale(1.2); }
+        .metrica-quadrado { background: #111; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #222; }
+        .metrica-quadrado span { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
+        .valor { font-size: 24px; font-weight: bold; color: #d4a017; }
+        .ausente { opacity: 0.3; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>CONTROLE DE LINHA // ANALYTICS</h1>
+        <h1>CONTROLE DE LINHA // ANALYTICS LÍDER</h1>
         <div id="data-atual" style="font-size: 12px; color: #666;"></div>
     </header>
 
     <div class="grid-layout">
-        <!-- ÁREA PRINCIPAL -->
         <main>
             <div class="heat-map-container">
-                <span style="font-size: 11px; color: #888; text-transform: uppercase;">🔥 Capacidade de Entrega da Linha</span>
+                <span style="font-size: 11px; color: #888; text-transform: uppercase;">🔥 Capacidade de Entrega e Desenvolvimento REPS</span>
                 <div class="bar-container">
                     <div id="barra-progresso" class="bar-fill"></div>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 10px; margin-top: 5px; color: #555;">
-                    <span>CRÍTICO</span><span>MÉDIO</span><span>ALTA PERFORMANCE</span>
                 </div>
             </div>
 
@@ -70,11 +60,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 30px;">PRES</th>
-                            <th>COLABORADOR</th>
-                            <th style="width: 150px;">MAPA TÉCNICO</th>
-                            <th>OBSERVAÇÕES TÁTICAS</th>
-                            <th style="width: 20px;"></th>
+                            <th>PRES</th>
+                            <th style="text-align:left;">COLABORADOR</th>
+                            <th>PROD (%)</th>
+                            <th>MU (%)</th>
+                            <th>OCIOSO (%)</th>
+                            <th>O QUE HOUVE HOJE? (OBSERVAÇÕES)</th>
+                            <th>MAPA REPS</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody id="corpo-tabela"></tbody>
@@ -82,103 +75,100 @@
             </div>
         </main>
 
-        <!-- BARRA LATERAL -->
         <aside class="secao-lateral">
             <div class="metrica-quadrado" style="border-left: 4px solid #d4a017;">
                 <input type="text" id="novo-nome" class="obs-input" placeholder="Novo Operador..." style="margin-bottom: 10px;">
                 <button class="btn" onclick="adicionarColaborador()" style="width: 100%;">CADASTRAR</button>
             </div>
-
             <div class="metrica-quadrado">
-                <span>PRESENÇA</span><span class="valor" id="presenca-real">0/0</span>
+                <span>PRESENÇA REAL</span><span class="valor" id="presenca-real">0/0</span>
             </div>
             <div class="metrica-quadrado">
-                <span>PERFORMANCE</span><span class="valor" id="media-geral">0.0</span>
+                <span>PERFORMANCE MÉDIA</span><span class="valor" id="media-geral">0%</span>
             </div>
-            
             <button class="btn btn-export" onclick="exportarRelatorio()">📥 EXPORTAR RELATÓRIO</button>
-            <p style="font-size: 10px; color: #444; text-align: center;">Dados salvos localmente no navegador.</p>
         </aside>
     </div>
 </div>
 
 <script>
-let dadosGestao = JSON.parse(localStorage.getItem('p2m_gestao_v3')) || {};
+// Inicializa dados vazio para novos cadastros
+let dadosGestao = JSON.parse(localStorage.getItem('p2m_gestao_v5')) || {};
 
 function adicionarColaborador() {
     const nomeInput = document.getElementById('novo-nome');
     const nome = nomeInput.value.trim().toUpperCase();
     if (nome === "") return;
-    dadosGestao[nome] = { score: 1, presente: true, obs: "" };
+    dadosGestao[nome] = { presente: true, prod: 0, mu: 0, ocio: 0, obs: "" };
     nomeInput.value = "";
     salvarETela();
 }
 
-function atualizarDados(nome, campo, valor) {
+function atualizarMétrica(nome, campo, valor) {
     dadosGestao[nome][campo] = valor;
     salvarETela();
 }
 
 function salvarETela() {
-    localStorage.setItem('p2m_gestao_v3', JSON.stringify(dadosGestao));
+    localStorage.setItem('p2m_gestao_v5', JSON.stringify(dadosGestao));
     atualizarInterface();
 }
 
+function calcularStatus(prod, mu, ocio) {
+    // Lógica do Mapa de Calor: Alta prod/mu e baixa ociosidade = Verde (REPS)
+    if (prod >= 85 && mu >= 80 && ocio <= 10) return { txt: "PERFIL REPS", classe: "reps-verde", score: 100 };
+    if (ocio > 25 || prod < 50) return { txt: "GARGALO", classe: "reps-vermelho", score: 30 };
+    return { txt: "DESENVOLV.", classe: "reps-amarelo", score: 65 };
+}
+
 function exportarRelatorio() {
-    let csv = "Colaborador;Score;Presenca;Observacao\n";
+    let csv = "Colaborador;Produtividade;MU;Ociosidade;Observacao;Status\n";
     Object.keys(dadosGestao).forEach(n => {
         let d = dadosGestao[n];
-        csv += `${n};${d.score};${d.presente?'SIM':'NAO'};${d.obs}\n`;
+        let status = calcularStatus(d.prod, d.mu, d.ocio).txt;
+        csv += `${n};${d.prod}%;${d.mu}%;${d.ocio}%;${d.obs};${status}\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('href', url);
-    a.setAttribute('download', `relatorio_linha_c_${new Date().toLocaleDateString()}.csv`);
+    a.setAttribute('download', `analise_linha_${new Date().toLocaleDateString()}.csv`);
     a.click();
 }
 
 function atualizarInterface() {
     const corpo = document.getElementById('corpo-tabela');
     corpo.innerHTML = "";
-    let somaScore = 0, presentes = 0, total = 0;
+    let somaPerformance = 0, presentes = 0, total = 0;
 
     Object.keys(dadosGestao).sort().forEach(nome => {
         total++;
         const d = dadosGestao[nome];
-        if(d.presente) { presentes++; somaScore += d.score; }
+        if(d.presente) { presentes++; }
+
+        const statusInfo = calcularStatus(d.prod, d.mu, d.ocio);
+        if(d.presente) somaPerformance += statusInfo.score;
 
         const tr = document.createElement('tr');
         if(!d.presente) tr.className = 'ausente';
 
-        // Lógica do Mapa de Calor na linha
-        let heatClass = `heat-n${d.score}`;
-
         tr.innerHTML = `
-            <td><input type="checkbox" ${d.presente?'checked':''} onchange="atualizarDados('${nome}', 'presente', this.checked)"></td>
-            <td style="font-weight:bold; font-size: 13px;">${nome}</td>
-            <td>
-                <select class="${heatClass}" onchange="atualizarDados('${nome}', 'score', parseInt(this.value))" style="font-weight:bold;">
-                    <option value="1" ${d.score==1?'selected':''}>N1 - APRENDIZ</option>
-                    <option value="2" ${d.score==2?'selected':''}>N2 - OPERADOR</option>
-                    <option value="3" ${d.score==3?'selected':''}>N3 - PLENO</option>
-                    <option value="4" ${d.score==4?'selected':''}>N4 - EXPERT</option>
-                </select>
-            </td>
-            <td><input type="text" class="obs-input" value="${d.obs}" onchange="atualizarDados('${nome}', 'obs', this.value.toUpperCase())"></td>
-            <td><button onclick="if(confirm('Remover?')) {delete dadosGestao['${nome}']; salvarETela();}" style="background:none; border:none; color:#444; cursor:pointer;">✖</button></td>
+            <td><input type="checkbox" ${d.presente?'checked':''} onchange="atualizarMétrica('${nome}', 'presente', this.checked)"></td>
+            <td style="text-align:left; font-weight:bold; font-size:13px;">${nome}</td>
+            <td><input type="number" class="input-metrica" value="${d.prod}" onchange="atualizarMétrica('${nome}', 'prod', parseInt(this.value))"></td>
+            <td><input type="number" class="input-metrica" value="${d.mu}" onchange="atualizarMétrica('${nome}', 'mu', parseInt(this.value))"></td>
+            <td><input type="number" class="input-metrica" value="${d.ocio}" onchange="atualizarMétrica('${nome}', 'ocio', parseInt(this.value))"></td>
+            <td><input type="text" class="obs-input" placeholder="Justificativa do resultado..." value="${d.obs}" onchange="atualizarMétrica('${nome}', 'obs', this.value.toUpperCase())"></td>
+            <td><span class="status-reps ${statusInfo.classe}">${statusInfo.txt}</span></td>
+            <td><button onclick="if(confirm('Remover Colaborador?')) {delete dadosGestao['${nome}']; salvarETela();}" style="background:none; border:none; color:#444; cursor:pointer;">✖</button></td>
         `;
         corpo.appendChild(tr);
     });
 
-    // Atualiza Indicadores
     document.getElementById('presenca-real').innerText = `${presentes}/${total}`;
-    const media = total > 0 && presentes > 0 ? (somaScore / presentes).toFixed(1) : 0;
-    document.getElementById('media-geral').innerText = media;
-
-    // Atualiza Barra de Calor (Relatório Visual)
-    const porc = (media / 4) * 100;
-    document.getElementById('barra-progresso').style.width = porc + "%";
+    const mediaGeral = presentes > 0 ? (somaPerformance / presentes).toFixed(0) : 0;
+    document.getElementById('media-geral').innerText = mediaGeral + "%";
+    document.getElementById('barra-progresso').style.width = mediaGeral + "%";
 }
 
 document.getElementById('data-atual').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
