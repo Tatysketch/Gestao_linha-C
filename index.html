@@ -1,40 +1,46 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>SISTEMA TÁTICO P2M - DASHBOARD</title>
+    <title>SISTEMA TÁTICO P2M - VISÃO GERAL DA LINHA</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #ccc; padding: 20px; margin: 0; }
-        .container { max-width: 1400px; margin: auto; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; margin-bottom: 20px; }
-        h1 { color: #d4a017; text-transform: uppercase; font-size: 20px; letter-spacing: 1px; }
+        .container { max-width: 1450px; margin: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; margin-bottom: 20px; position: sticky; top: 0; background: #0a0a0a; z-index: 100; padding: 10px 0; }
+        h1 { color: #d4a017; text-transform: uppercase; font-size: 18px; letter-spacing: 1px; margin: 0; }
 
-        .grid-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        .layout-vertical { display: flex; flex-direction: column; gap: 40px; }
+        
+        /* Blocos de Setor */
+        .setor-bloco { background: #111; border: 1px solid #222; border-radius: 8px; padding: 20px; }
+        .setor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .setor-nome { color: #d4a017; font-size: 20px; font-weight: bold; text-transform: uppercase; }
 
-        .heat-map-container { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; margin-bottom: 20px; }
-        .bar-container { background: #222; height: 25px; border-radius: 12px; overflow: hidden; margin-top: 10px; border: 1px solid #333; }
+        /* Mapa de Calor */
+        .heat-map-container { flex-grow: 1; max-width: 400px; margin: 0 20px; }
+        .bar-container { background: #222; height: 15px; border-radius: 10px; overflow: hidden; margin-top: 5px; border: 1px solid #333; }
         .bar-fill { height: 100%; width: 0%; transition: 0.5s; background: linear-gradient(90deg, #ff4b2b, #ffb400, #2ecc71); }
 
-        .card-gestao { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; overflow-x: auto; max-height: 600px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th { color: #888; text-transform: uppercase; font-size: 10px; text-align: center; padding: 10px; border-bottom: 1px solid #333; position: sticky; top: 0; background: #111; }
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { color: #888; text-transform: uppercase; font-size: 10px; text-align: center; padding: 12px; border-bottom: 1px solid #333; background: #1a1a1a; }
         td { padding: 8px; border-bottom: 1px solid #1a1a1a; text-align: center; }
 
-        .status-reps { font-weight: bold; font-size: 10px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
+        /* Status REPS */
+        .status-reps { font-weight: bold; font-size: 9px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
         .reps-verde { color: #2ecc71; background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; }
         .reps-amarelo { color: #f1c40f; background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f; }
         .reps-vermelho { color: #e74c3c; background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; }
 
-        .input-metrica { background: #000; color: #d4a017; border: 1px solid #333; padding: 6px; border-radius: 4px; width: 60px; text-align: center; font-weight: bold; }
-        .obs-input { background: #000; color: #eee; border: 1px solid #333; padding: 8px; border-radius: 4px; width: 100%; outline: none; font-size: 12px; }
-        .obs-input:focus { border-color: #d4a017; }
-
-        .btn { background: #d4a017; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
-        .btn-export { background: #333; color: #fff; margin-top: 10px; width: 100%; }
+        /* Inputs */
+        .input-metrica { background: #000; color: #d4a017; border: 1px solid #333; padding: 6px; border-radius: 4px; width: 55px; text-align: center; font-weight: bold; }
+        .obs-input { background: #000; color: #eee; border: 1px solid #333; padding: 8px; border-radius: 4px; width: 100%; outline: none; font-size: 11px; }
         
-        .secao-lateral { display: flex; flex-direction: column; gap: 20px; }
-        .metrica-quadrado { background: #111; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #222; }
-        .metrica-quadrado span { font-size: 10px; color: #666; text-transform: uppercase; display: block; }
-        .valor { font-size: 24px; font-weight: bold; color: #d4a017; }
+        .controles-cadastro { display: flex; gap: 10px; align-items: center; }
+        .btn { background: #d4a017; color: #000; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 10px; }
+        .btn-export { background: #333; color: #fff; }
+        
+        .metrica-resumo { font-size: 12px; font-weight: bold; color: #aaa; }
+        .valor-resumo { color: #d4a017; font-size: 16px; }
         .ausente { opacity: 0.3; }
     </style>
 </head>
@@ -42,98 +48,101 @@
 
 <div class="container">
     <header>
-        <h1>CONTROLE DE LINHA // ANALYTICS LÍDER</h1>
-        <div id="data-atual" style="font-size: 12px; color: #666;"></div>
+        <h1>CONTROLE TÁTICO // LINHA C COMPLETA</h1>
+        <div style="display: flex; gap: 15px;">
+            <button class="btn btn-export" onclick="exportarRelatorio()">📥 EXPORTAR CSV GERAL</button>
+            <div id="data-atual" style="font-size: 12px; color: #666; align-self: center;"></div>
+        </div>
     </header>
 
-    <div class="grid-layout">
-        <main>
-            <div class="heat-map-container">
-                <span style="font-size: 11px; color: #888; text-transform: uppercase;">🔥 Performance e Desenvolvimento REPS</span>
-                <div class="bar-container">
-                    <div id="barra-progresso" class="bar-fill"></div>
+    <div class="layout-vertical">
+        <section class="setor-bloco" id="bloco-CHECKIN">
+            <div class="setor-header">
+                <span class="setor-nome">1. CHECKIN</span>
+                <div class="heat-map-container">
+                    <div class="bar-container"><div id="barra-CHECKIN" class="bar-fill"></div></div>
+                </div>
+                <div class="metrica-resumo">PERF: <span class="valor-resumo" id="perf-CHECKIN">0%</span> | PRES: <span id="pres-CHECKIN">0/0</span></div>
+                <div class="controles-cadastro">
+                    <input type="text" id="add-CHECKIN" class="obs-input" style="width: 150px;" placeholder="Nome Operador...">
+                    <button class="btn" onclick="adicionar('CHECKIN')">+</button>
                 </div>
             </div>
+            <table>
+                <thead>
+                    <tr><th>PRES</th><th style="text-align:left;">OPERADOR</th><th>PROD%</th><th>MU%</th><th>OCIO%</th><th>OBSERVAÇÕES DO DIA</th><th>MAPA REPS</th><th></th></tr>
+                </thead>
+                <tbody id="corpo-CHECKIN"></tbody>
+            </table>
+        </section>
 
-            <div class="card-gestao">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>PRES</th>
-                            <th style="text-align:left;">COLABORADOR</th>
-                            <th>PROD (%)</th>
-                            <th>MU (%)</th>
-                            <th>OCIOSO (%)</th>
-                            <th>O QUE HOUVE HOJE?</th>
-                            <th>MAPA REPS</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="corpo-tabela"></tbody>
-                </table>
+        <section class="setor-bloco" id="bloco-P2M">
+            <div class="setor-header">
+                <span class="setor-nome">2. P2M</span>
+                <div class="heat-map-container">
+                    <div class="bar-container"><div id="barra-P2M" class="bar-fill"></div></div>
+                </div>
+                <div class="metrica-resumo">PERF: <span class="valor-resumo" id="perf-P2M">0%</span> | PRES: <span id="pres-P2M">0/0</span></div>
+                <div class="controles-cadastro">
+                    <input type="text" id="add-P2M" class="obs-input" style="width: 150px;" placeholder="Nome Operador...">
+                    <button class="btn" onclick="adicionar('P2M')">+</button>
+                </div>
             </div>
-        </main>
+            <table>
+                <thead>
+                    <tr><th>PRES</th><th style="text-align:left;">OPERADOR</th><th>PROD%</th><th>MU%</th><th>OCIO%</th><th>OBSERVAÇÕES DO DIA</th><th>MAPA REPS</th><th></th></tr>
+                </thead>
+                <tbody id="corpo-P2M"></tbody>
+            </table>
+        </section>
 
-        <aside class="secao-lateral">
-            <div class="metrica-quadrado" style="border-left: 4px solid #d4a017;">
-                <input type="text" id="novo-nome" class="obs-input" placeholder="Novo Operador..." style="margin-bottom: 10px;">
-                <button class="btn" onclick="adicionarColaborador()" style="width: 100%;">CADASTRAR</button>
-                <p id="contagem-limite" style="font-size: 9px; color: #555; margin-top: 5px;">Limite: 0/200</p>
+        <section class="setor-bloco" id="bloco-SORTING">
+            <div class="setor-header">
+                <span class="setor-nome">3. SORTING</span>
+                <div class="heat-map-container">
+                    <div class="bar-container"><div id="barra-SORTING" class="bar-fill"></div></div>
+                </div>
+                <div class="metrica-resumo">PERF: <span class="valor-resumo" id="perf-SORTING">0%</span> | PRES: <span id="pres-SORTING">0/0</span></div>
+                <div class="controles-cadastro">
+                    <input type="text" id="add-SORTING" class="obs-input" style="width: 150px;" placeholder="Nome Operador...">
+                    <button class="btn" onclick="adicionar('SORTING')">+</button>
+                </div>
             </div>
-            <div class="metrica-quadrado">
-                <span>PRESENÇA REAL</span><span class="valor" id="presenca-real">0/0</span>
-            </div>
-            <div class="metrica-quadrado">
-                <span>PERFORMANCE MÉDIA</span><span class="valor" id="media-geral">0%</span>
-            </div>
-            <button class="btn btn-export" onclick="exportarRelatorio()">📥 EXPORTAR RELATÓRIO</button>
-            <button class="btn" style="background: #222; color: #888; margin-top: 5px;" onclick="forcarSalvamento()">💾 SALVAR HISTÓRICO AGORA</button>
-        </aside>
+            <table>
+                <thead>
+                    <tr><th>PRES</th><th style="text-align:left;">OPERADOR</th><th>PROD%</th><th>MU%</th><th>OCIO%</th><th>OBSERVAÇÕES DO DIA</th><th>MAPA REPS</th><th></th></tr>
+                </thead>
+                <tbody id="corpo-SORTING"></tbody>
+            </table>
+        </section>
     </div>
 </div>
 
 <script>
-// USANDO UMA CHAVE ÚNICA PARA EVITAR PERDA DE DADOS
-const STORAGE_KEY = 'LINHA_C_PERFORMANCE_FINAL';
-let dadosGestao = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+const STORAGE_KEY = 'LINHA_C_UNIFICADA_V7';
+let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { "CHECKIN": {}, "P2M": {}, "SORTING": {} };
 
-function adicionarColaborador() {
-    const nomeInput = document.getElementById('novo-nome');
-    const nome = nomeInput.value.trim().toUpperCase();
-    
-    // VERIFICAÇÃO DE LIMITE (200 NOMES)
-    const totalAtual = Object.keys(dadosGestao).length;
-    
+function adicionar(setor) {
+    const input = document.getElementById(`add-${setor}`);
+    const nome = input.value.trim().toUpperCase();
     if (nome === "") return;
-    if (totalAtual >= 200) {
-        alert("Limite de 200 colaboradores atingido!");
-        return;
-    }
+    if (Object.keys(db[setor]).length >= 100) return alert("Limite de 100 atingido!");
     
-    if (!dadosGestao[nome]) {
-        dadosGestao[nome] = { presente: true, prod: 0, mu: 0, ocio: 0, obs: "" };
-        nomeInput.value = "";
-        salvarETela();
-    } else {
-        alert("Este colaborador já está na lista!");
-    }
-}
-
-function atualizarMétrica(nome, campo, valor) {
-    if (dadosGestao[nome]) {
-        dadosGestao[nome][campo] = valor;
+    if (!db[setor][nome]) {
+        db[setor][nome] = { presente: true, prod: 0, mu: 0, ocio: 0, obs: "" };
+        input.value = "";
         salvarETela();
     }
 }
 
-function forcarSalvamento() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosGestao));
-    alert("Histórico da Linha C salvo com sucesso!");
+function atualizar(setor, nome, campo, valor) {
+    db[setor][nome][campo] = valor;
+    salvarETela();
 }
 
 function salvarETela() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosGestao));
-    atualizarInterface();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    renderizarTudo();
 }
 
 function calcularStatus(prod, mu, ocio) {
@@ -142,61 +151,58 @@ function calcularStatus(prod, mu, ocio) {
     return { txt: "DESENVOLV.", classe: "reps-amarelo", score: 65 };
 }
 
+function renderizarTudo() {
+    ["CHECKIN", "P2M", "SORTING"].forEach(setor => {
+        const corpo = document.getElementById(`corpo-${setor}`);
+        corpo.innerHTML = "";
+        let somaPerf = 0, pres = 0;
+        const nomes = Object.keys(db[setor]).sort();
+
+        nomes.forEach(nome => {
+            const d = db[setor][nome];
+            if(d.presente) pres++;
+            const statusInfo = calcularStatus(d.prod, d.mu, d.ocio);
+            if(d.presente) somaPerf += statusInfo.score;
+
+            const tr = document.createElement('tr');
+            if(!d.presente) tr.className = 'ausente';
+            tr.innerHTML = `
+                <td><input type="checkbox" ${d.presente?'checked':''} onchange="atualizar('${setor}','${nome}','presente',this.checked)"></td>
+                <td style="text-align:left; font-weight:bold; font-size:12px;">${nome}</td>
+                <td><input type="number" class="input-metrica" value="${d.prod}" onchange="atualizar('${setor}','${nome}','prod',parseInt(this.value))"></td>
+                <td><input type="number" class="input-metrica" value="${d.mu}" onchange="atualizar('${setor}','${nome}','mu',parseInt(this.value))"></td>
+                <td><input type="number" class="input-metrica" value="${d.ocio}" onchange="atualizar('${setor}','${nome}','ocio',parseInt(this.value))"></td>
+                <td><input type="text" class="obs-input" value="${d.obs}" onchange="atualizar('${setor}','${nome}','obs',this.value.toUpperCase())"></td>
+                <td><span class="status-reps ${statusInfo.classe}">${statusInfo.txt}</span></td>
+                <td><button onclick="if(confirm('Remover?')){delete db['${setor}']['${nome}'];salvarETela();}" style="background:none;border:none;color:#333;cursor:pointer;">✖</button></td>
+            `;
+            corpo.appendChild(tr);
+        });
+
+        const media = pres > 0 ? (somaPerf / pres).toFixed(0) : 0;
+        document.getElementById(`perf-${setor}`).innerText = media + "%";
+        document.getElementById(`pres-${setor}`).innerText = `${pres}/${nomes.length}`;
+        document.getElementById(`barra-${setor}`).style.width = media + "%";
+    });
+}
+
 function exportarRelatorio() {
-    let csv = "Colaborador;Produtividade;MU;Ociosidade;Observacao;Status\n";
-    Object.keys(dadosGestao).forEach(n => {
-        let d = dadosGestao[n];
-        let status = calcularStatus(d.prod, d.mu, d.ocio).txt;
-        csv += `${n};${d.prod}%;${d.mu}%;${d.ocio}%;${d.obs};${status}\n`;
+    let csv = "Setor;Operador;Prod;MU;Ocio;Status;Observacao\n";
+    ["CHECKIN", "P2M", "SORTING"].forEach(s => {
+        Object.keys(db[s]).forEach(n => {
+            let d = db[s][n];
+            csv += `${s};${n};${d.prod}%;${d.mu}%;${d.ocio}%;${calcularStatus(d.prod, d.mu, d.ocio).txt};${d.obs}\n`;
+        });
     });
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.setAttribute('href', url);
-    a.setAttribute('download', `analise_reps_linha_c.csv`);
+    a.href = URL.createObjectURL(blob);
+    a.download = `relatorio_completo_linha_c.csv`;
     a.click();
 }
 
-function atualizarInterface() {
-    const corpo = document.getElementById('corpo-tabela');
-    corpo.innerHTML = "";
-    let somaPerformance = 0, presentes = 0, total = 0;
-
-    const nomesOrdenados = Object.keys(dadosGestao).sort();
-    total = nomesOrdenados.length;
-
-    nomesOrdenados.forEach(nome => {
-        const d = dadosGestao[nome];
-        if(d.presente) { presentes++; }
-
-        const statusInfo = calcularStatus(d.prod, d.mu, d.ocio);
-        if(d.presente) somaPerformance += statusInfo.score;
-
-        const tr = document.createElement('tr');
-        if(!d.presente) tr.className = 'ausente';
-
-        tr.innerHTML = `
-            <td><input type="checkbox" ${d.presente?'checked':''} onchange="atualizarMétrica('${nome}', 'presente', this.checked)"></td>
-            <td style="text-align:left; font-weight:bold; font-size:13px;">${nome}</td>
-            <td><input type="number" class="input-metrica" value="${d.prod}" onchange="atualizarMétrica('${nome}', 'prod', parseInt(this.value))"></td>
-            <td><input type="number" class="input-metrica" value="${d.mu}" onchange="atualizarMétrica('${nome}', 'mu', parseInt(this.value))"></td>
-            <td><input type="number" class="input-metrica" value="${d.ocio}" onchange="atualizarMétrica('${nome}', 'ocio', parseInt(this.value))"></td>
-            <td><input type="text" class="obs-input" placeholder="..." value="${d.obs}" onchange="atualizarMétrica('${nome}', 'obs', this.value.toUpperCase())"></td>
-            <td><span class="status-reps ${statusInfo.classe}">${statusInfo.txt}</span></td>
-            <td><button onclick="if(confirm('Remover?')) {delete dadosGestao['${nome}']; salvarETela();}" style="background:none; border:none; color:#444; cursor:pointer;">✖</button></td>
-        `;
-        corpo.appendChild(tr);
-    });
-
-    document.getElementById('contagem-limite').innerText = `Limite: ${total}/200`;
-    document.getElementById('presenca-real').innerText = `${presentes}/${total}`;
-    const mediaGeral = presentes > 0 ? (somaPerformance / presentes).toFixed(0) : 0;
-    document.getElementById('media-geral').innerText = mediaGeral + "%";
-    document.getElementById('barra-progresso').style.width = mediaGeral + "%";
-}
-
-document.getElementById('data-atual').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-window.onload = atualizarInterface;
+document.getElementById('data-atual').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+window.onload = renderizarTudo;
 </script>
 </body>
 </html>
