@@ -14,12 +14,11 @@
         .bar-container { background: #222; height: 25px; border-radius: 12px; overflow: hidden; margin-top: 10px; border: 1px solid #333; }
         .bar-fill { height: 100%; width: 0%; transition: 0.5s; background: linear-gradient(90deg, #ff4b2b, #ffb400, #2ecc71); }
 
-        .card-gestao { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; overflow-x: auto; }
+        .card-gestao { background: #111; padding: 15px; border-radius: 6px; border: 1px solid #222; overflow-x: auto; max-height: 600px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th { color: #888; text-transform: uppercase; font-size: 10px; text-align: center; padding: 10px; border-bottom: 1px solid #333; }
+        th { color: #888; text-transform: uppercase; font-size: 10px; text-align: center; padding: 10px; border-bottom: 1px solid #333; position: sticky; top: 0; background: #111; }
         td { padding: 8px; border-bottom: 1px solid #1a1a1a; text-align: center; }
 
-        /* Estilo do Mapa de Calor (Performance/REPS) */
         .status-reps { font-weight: bold; font-size: 10px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
         .reps-verde { color: #2ecc71; background: rgba(46, 204, 113, 0.1); border: 1px solid #2ecc71; }
         .reps-amarelo { color: #f1c40f; background: rgba(241, 196, 15, 0.1); border: 1px solid #f1c40f; }
@@ -50,7 +49,7 @@
     <div class="grid-layout">
         <main>
             <div class="heat-map-container">
-                <span style="font-size: 11px; color: #888; text-transform: uppercase;">🔥 Capacidade de Entrega e Desenvolvimento REPS</span>
+                <span style="font-size: 11px; color: #888; text-transform: uppercase;">🔥 Performance e Desenvolvimento REPS</span>
                 <div class="bar-container">
                     <div id="barra-progresso" class="bar-fill"></div>
                 </div>
@@ -65,7 +64,7 @@
                             <th>PROD (%)</th>
                             <th>MU (%)</th>
                             <th>OCIOSO (%)</th>
-                            <th>O QUE HOUVE HOJE? (OBSERVAÇÕES)</th>
+                            <th>O QUE HOUVE HOJE?</th>
                             <th>MAPA REPS</th>
                             <th></th>
                         </tr>
@@ -79,6 +78,7 @@
             <div class="metrica-quadrado" style="border-left: 4px solid #d4a017;">
                 <input type="text" id="novo-nome" class="obs-input" placeholder="Novo Operador..." style="margin-bottom: 10px;">
                 <button class="btn" onclick="adicionarColaborador()" style="width: 100%;">CADASTRAR</button>
+                <p id="contagem-limite" style="font-size: 9px; color: #555; margin-top: 5px;">Limite: 0/200</p>
             </div>
             <div class="metrica-quadrado">
                 <span>PRESENÇA REAL</span><span class="valor" id="presenca-real">0/0</span>
@@ -87,35 +87,56 @@
                 <span>PERFORMANCE MÉDIA</span><span class="valor" id="media-geral">0%</span>
             </div>
             <button class="btn btn-export" onclick="exportarRelatorio()">📥 EXPORTAR RELATÓRIO</button>
+            <button class="btn" style="background: #222; color: #888; margin-top: 5px;" onclick="forcarSalvamento()">💾 SALVAR HISTÓRICO AGORA</button>
         </aside>
     </div>
 </div>
 
 <script>
-// Inicializa dados vazio para novos cadastros
-let dadosGestao = JSON.parse(localStorage.getItem('p2m_gestao_v5')) || {};
+// USANDO UMA CHAVE ÚNICA PARA EVITAR PERDA DE DADOS
+const STORAGE_KEY = 'LINHA_C_PERFORMANCE_FINAL';
+let dadosGestao = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
 function adicionarColaborador() {
     const nomeInput = document.getElementById('novo-nome');
     const nome = nomeInput.value.trim().toUpperCase();
+    
+    // VERIFICAÇÃO DE LIMITE (200 NOMES)
+    const totalAtual = Object.keys(dadosGestao).length;
+    
     if (nome === "") return;
-    dadosGestao[nome] = { presente: true, prod: 0, mu: 0, ocio: 0, obs: "" };
-    nomeInput.value = "";
-    salvarETela();
+    if (totalAtual >= 200) {
+        alert("Limite de 200 colaboradores atingido!");
+        return;
+    }
+    
+    if (!dadosGestao[nome]) {
+        dadosGestao[nome] = { presente: true, prod: 0, mu: 0, ocio: 0, obs: "" };
+        nomeInput.value = "";
+        salvarETela();
+    } else {
+        alert("Este colaborador já está na lista!");
+    }
 }
 
 function atualizarMétrica(nome, campo, valor) {
-    dadosGestao[nome][campo] = valor;
-    salvarETela();
+    if (dadosGestao[nome]) {
+        dadosGestao[nome][campo] = valor;
+        salvarETela();
+    }
+}
+
+function forcarSalvamento() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosGestao));
+    alert("Histórico da Linha C salvo com sucesso!");
 }
 
 function salvarETela() {
-    localStorage.setItem('p2m_gestao_v5', JSON.stringify(dadosGestao));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosGestao));
     atualizarInterface();
 }
 
 function calcularStatus(prod, mu, ocio) {
-    // Lógica do Mapa de Calor: Alta prod/mu e baixa ociosidade = Verde (REPS)
     if (prod >= 85 && mu >= 80 && ocio <= 10) return { txt: "PERFIL REPS", classe: "reps-verde", score: 100 };
     if (ocio > 25 || prod < 50) return { txt: "GARGALO", classe: "reps-vermelho", score: 30 };
     return { txt: "DESENVOLV.", classe: "reps-amarelo", score: 65 };
@@ -132,7 +153,7 @@ function exportarRelatorio() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('href', url);
-    a.setAttribute('download', `analise_linha_${new Date().toLocaleDateString()}.csv`);
+    a.setAttribute('download', `analise_reps_linha_c.csv`);
     a.click();
 }
 
@@ -141,8 +162,10 @@ function atualizarInterface() {
     corpo.innerHTML = "";
     let somaPerformance = 0, presentes = 0, total = 0;
 
-    Object.keys(dadosGestao).sort().forEach(nome => {
-        total++;
+    const nomesOrdenados = Object.keys(dadosGestao).sort();
+    total = nomesOrdenados.length;
+
+    nomesOrdenados.forEach(nome => {
         const d = dadosGestao[nome];
         if(d.presente) { presentes++; }
 
@@ -158,13 +181,14 @@ function atualizarInterface() {
             <td><input type="number" class="input-metrica" value="${d.prod}" onchange="atualizarMétrica('${nome}', 'prod', parseInt(this.value))"></td>
             <td><input type="number" class="input-metrica" value="${d.mu}" onchange="atualizarMétrica('${nome}', 'mu', parseInt(this.value))"></td>
             <td><input type="number" class="input-metrica" value="${d.ocio}" onchange="atualizarMétrica('${nome}', 'ocio', parseInt(this.value))"></td>
-            <td><input type="text" class="obs-input" placeholder="Justificativa do resultado..." value="${d.obs}" onchange="atualizarMétrica('${nome}', 'obs', this.value.toUpperCase())"></td>
+            <td><input type="text" class="obs-input" placeholder="..." value="${d.obs}" onchange="atualizarMétrica('${nome}', 'obs', this.value.toUpperCase())"></td>
             <td><span class="status-reps ${statusInfo.classe}">${statusInfo.txt}</span></td>
-            <td><button onclick="if(confirm('Remover Colaborador?')) {delete dadosGestao['${nome}']; salvarETela();}" style="background:none; border:none; color:#444; cursor:pointer;">✖</button></td>
+            <td><button onclick="if(confirm('Remover?')) {delete dadosGestao['${nome}']; salvarETela();}" style="background:none; border:none; color:#444; cursor:pointer;">✖</button></td>
         `;
         corpo.appendChild(tr);
     });
 
+    document.getElementById('contagem-limite').innerText = `Limite: ${total}/200`;
     document.getElementById('presenca-real').innerText = `${presentes}/${total}`;
     const mediaGeral = presentes > 0 ? (somaPerformance / presentes).toFixed(0) : 0;
     document.getElementById('media-geral').innerText = mediaGeral + "%";
